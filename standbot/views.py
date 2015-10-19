@@ -12,9 +12,9 @@ class SlackEndpoint (View):
 
     def post(self, request):
         incomingSlackData = request.POST.dict()
-        import slackbot_settings
+        import standbot_settings
 
-        if incomingSlackData['token'] != slackbot_settings.incoming_slack_token_from_outgoing_webhook:
+        if incomingSlackData['token'] != standbot_settings.incoming_slack_token_from_outgoing_webhook:
             return JsonResponse({'error': 'not authorized'})
         elif incomingSlackData['user_name'] == 'slackbot':
             return HttpResponse()
@@ -30,7 +30,7 @@ class SlackEndpoint (View):
 
             if incomingSlackData['text']=='start':
                 return self.startCommand(meetingDB, meetingInProgress,
-                                        slackbot_settings.usernames, slackbot_settings.shuffle)
+                                        standbot_settings.usernames, standbot_settings.shuffle)
 
             if incomingSlackData['text']=='quit':
                 return self.quitCommand(meetingDB, meetingInProgress)
@@ -52,8 +52,8 @@ class SlackEndpoint (View):
         return HttpResponse()
 
     def sendSlackMessage(self, message):
-        import slackbot_settings
-        incomingWebHookURL = slackbot_settings.incoming_slack_webhook_url
+        import standbot_settings
+        incomingWebHookURL = standbot_settings.incoming_slack_webhook_url
 
         payload = {
             "text": message,
