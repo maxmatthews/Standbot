@@ -1,4 +1,3 @@
 *.pyc
 db.sqlite3
-osuwari/osuwariSettings.py
-osuwariSettings.py
+slackbot_settings.py
