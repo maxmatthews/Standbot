@@ -24,35 +24,30 @@ class SlackEndpoint (View):
                 meetingInProgress=True
             except:
                 meetingInProgress=False
+                meetingDB = None
                 # dataToReturn = {"text": "Meeting not in progress. Respond with 'start' to start a new one."}
                 # return JsonResponse(dataToReturn)
 
             if incomingSlackData['text']=='start':
-                self.startCommand(meetingDB, meetingInProgress, osuwariSettings.usernames, osuwariSettings.shuffle)
-                return HttpResponse()
+                return self.startCommand(meetingDB, meetingInProgress,
+                                        osuwariSettings.usernames, osuwariSettings.shuffle)
 
             if incomingSlackData['text']=='quit':
-                self.quitCommand(meetingDB, meetingInProgress)
-                return HttpResponse()
+                return self.quitCommand(meetingDB, meetingInProgress)
 
             if meetingInProgress and incomingSlackData['text']=='ready':
-                self.readyCommand(meetingDB, incomingSlackData)
-                return HttpResponse() #this should never hit because it's done in the method
+                return self.readyCommand(meetingDB, incomingSlackData)
 
             if meetingInProgress and incomingSlackData['text']=='skip':
-                self.skipCommand(meetingDB)
-                return HttpResponse()
+                return self.skipCommand(meetingDB)
 
             if meetingInProgress and incomingSlackData['text']=='dismiss':
-                self.dismissCommand(meetingDB)
-                return HttpResponse()
+                return self.dismissCommand(meetingDB)
 
 
             if meetingInProgress and incomingSlackData['text'][0:6]!='ignore' \
                     and "@"+incomingSlackData['user_name']==meetingDB.currentMember:
-                self.questionAnswer(meetingDB)
-                return HttpResponse() #this should never hit because it's done in the method
-
+                return self.questionAnswer(meetingDB)
 
         return HttpResponse()
 
@@ -62,8 +57,8 @@ class SlackEndpoint (View):
 
         payload = {
             "text": message,
-            "username": "osuwari",
-            "channel": "#osuwari",
+            "username": "standbot",
+            # "channel": "#standup",
             "link_names": 1
         }
 
@@ -85,6 +80,7 @@ class SlackEndpoint (View):
 
         self.sendSlackMessage("Let's get this meeting started! The order today will be: " + ", ".join(usernames))
         self.sendSlackMessage("What did you do since your last standup?")
+        return HttpResponse()
 
     def quitCommand(self, meetingDB, meetingInProgress):
         if meetingInProgress:
@@ -92,6 +88,8 @@ class SlackEndpoint (View):
             self.sendSlackMessage("Meeting closed")
         else:
             self.sendSlackMessage("No meeting in progress")
+        return HttpResponse()
+
 
     def readyCommand(self, meetingDB, incomingSlackData):
         meetingOrderAsList = json.loads(meetingDB.meetingOrder)
@@ -127,6 +125,7 @@ class SlackEndpoint (View):
         meetingDB.meetingOrder = json.dumps(meetingOrderAsList)
 
         meetingDB.save()
+        return HttpResponse()
 
     def dismissCommand(self, meetingDB):
         currentMemberIndex = json.loads(meetingDB.meetingOrder).index(meetingDB.currentMember)
@@ -147,6 +146,7 @@ class SlackEndpoint (View):
         meetingDB.meetingOrder = json.dumps(meetingOrderAsList)
 
         meetingDB.save()
+        return HttpResponse()
 
     def questionAnswer(self, meetingDB):
         if meetingDB.questionNum == 0:
@@ -167,7 +167,7 @@ class SlackEndpoint (View):
                 meetingDB.delete()
                 self.sendSlackMessage("Standup for today is complete. Thanks!")
                 r = requests.get("http://fortunecookieapi.com/v1/cookie")
-                self.sendSlackMessage("Your fortune cookie message is: " + r.json()['fortune']['message'])
+                self.sendSlackMessage("Your fortune cookie message is: \"" + r.json[0]['fortune']['message'])+"\""
                 return HttpResponse()
 
             nextUsername = json.loads(meetingDB.meetingOrder)[currentMemberIndex+1]
@@ -179,3 +179,5 @@ class SlackEndpoint (View):
             meetingDB.save()
 
             return JsonResponse({"text": "What did you do since your last standup?"})
+        else:
+            return HttpResponse()
