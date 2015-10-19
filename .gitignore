@@ -1,4 +1,4 @@
 *.pyc
 db.sqlite3
-standbot_settings.py
-standbot/standbot_settings.py
+#standbot_settings.py
+#standbot/standbot_settings.py
