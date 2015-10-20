@@ -20,17 +20,17 @@ class SlackEndpoint (View):
             return HttpResponse()
         else:
             try:
-                meetingDB = Meeting.objects.get(channel='C0CMUCBBM')
+                meetingDB = Meeting.objects.get(channel=incomingSlackData['channel_id'])
                 meetingInProgress=True
             except:
                 meetingInProgress=False
                 meetingDB = None
                 # dataToReturn = {"text": "Meeting not in progress. Respond with 'start' to start a new one."}
                 # return JsonResponse(dataToReturn)
-
             if incomingSlackData['text']=='start':
                 return self.startCommand(meetingDB, meetingInProgress,
-                                        standbot_settings.usernames, standbot_settings.shuffle)
+                                        standbot_settings.usernames, standbot_settings.shuffle,
+                                         incomingSlackData['channel_id'])
 
             if incomingSlackData['text']=='quit':
                 return self.quitCommand(meetingDB, meetingInProgress)
@@ -64,7 +64,8 @@ class SlackEndpoint (View):
 
         r = requests.post(incomingWebHookURL, json.dumps(payload), headers={'content-type': 'application/json'})
 
-    def startCommand(self, meetingDB, meetingInProgress, usernames, shuffle):
+
+    def startCommand(self, meetingDB, meetingInProgress, usernames, shuffle, channel_id):
         if meetingInProgress:
             self.sendSlackMessage("Meeting already in progress")
             return HttpResponse()
@@ -72,7 +73,7 @@ class SlackEndpoint (View):
         if shuffle:
             random.shuffle(usernames)
 
-        meetingDB = Meeting(channel='C0CMUCBBM',
+        meetingDB = Meeting(channel=channel_id,
                             meetingOrder=json.dumps(usernames),
                             questionNum=1,
                             currentMember=usernames[0])
