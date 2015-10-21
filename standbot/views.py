@@ -117,6 +117,7 @@ class SlackEndpoint (View):
             nextUsername = json.loads(meetingDB.meetingOrder)[currentMemberIndex]
 
         self.sendSlackMessage("Ok, we'll skip " + meetingDB.currentMember+". "+ nextUsername + " you're up")
+        self.sendSlackMessage("What did you do since your last standup?")
 
         userToAddToEnd = meetingDB.currentMember
         meetingDB.currentMember = nextUsername
@@ -124,6 +125,7 @@ class SlackEndpoint (View):
         meetingOrderAsList.remove(userToAddToEnd)
         meetingOrderAsList.append(userToAddToEnd)
         meetingDB.meetingOrder = json.dumps(meetingOrderAsList)
+        meetingDB.questionNum=1
 
         meetingDB.save()
         return HttpResponse()
@@ -137,6 +139,7 @@ class SlackEndpoint (View):
         nextUsername = json.loads(meetingDB.meetingOrder)[currentMemberIndex+1]
 
         self.sendSlackMessage("Ok " + meetingDB.currentMember+" is out for today. "+ nextUsername + " you're up")
+        self.sendSlackMessage("What did you do since your last standup?")
 
         userToAddToBeginning = meetingDB.currentMember
         meetingDB.currentMember = nextUsername
@@ -145,6 +148,7 @@ class SlackEndpoint (View):
         meetingOrderAsList.remove(userToAddToBeginning)
         meetingOrderAsList.insert(0, userToAddToBeginning)
         meetingDB.meetingOrder = json.dumps(meetingOrderAsList)
+        meetingDB.questionNum = 1
 
         meetingDB.save()
         return HttpResponse()
