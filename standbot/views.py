@@ -134,7 +134,9 @@ class SlackEndpoint (View):
         currentMemberIndex = json.loads(meetingDB.meetingOrder).index(meetingDB.currentMember)
         if currentMemberIndex == len(json.loads(meetingDB.meetingOrder))-1:
             meetingDB.delete()
-            return JsonResponse({"text": "Standup for today is complete. Thanks!"})
+            self.sendSlackMessage("Standup for today is complete. Thanks!")
+            r = requests.get("http://fortunecookieapi.com/v1/cookie")
+            self.sendSlackMessage('Your fortune cookie message is: "' + r.json[0]['fortune']['message']+'"')
 
         nextUsername = json.loads(meetingDB.meetingOrder)[currentMemberIndex+1]
 
@@ -172,7 +174,7 @@ class SlackEndpoint (View):
                 meetingDB.delete()
                 self.sendSlackMessage("Standup for today is complete. Thanks!")
                 r = requests.get("http://fortunecookieapi.com/v1/cookie")
-                self.sendSlackMessage("Your fortune cookie message is: \"" + r.json[0]['fortune']['message'])+"\""
+                self.sendSlackMessage('Your fortune cookie message is: "' + r.json[0]['fortune']['message']+'"')
                 return HttpResponse()
 
             nextUsername = json.loads(meetingDB.meetingOrder)[currentMemberIndex+1]
