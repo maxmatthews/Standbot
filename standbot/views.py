@@ -80,7 +80,7 @@ class SlackEndpoint (View):
         meetingDB.save()
 
         self.sendSlackMessage("Let's get this meeting started! The order today will be: " + ", ".join(usernames))
-        self.sendSlackMessage("What did you do since your last standup?")
+        self.sendSlackMessage(usernames[0] + ": What did you do since your last standup?")
         return HttpResponse()
 
     def quitCommand(self, meetingDB, meetingInProgress):
