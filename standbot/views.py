@@ -27,25 +27,25 @@ class SlackEndpoint (View):
                 meetingDB = None
                 # dataToReturn = {"text": "Meeting not in progress. Respond with 'start' to start a new one."}
                 # return JsonResponse(dataToReturn)
-            if incomingSlackData['text']=='start':
+            if incomingSlackData['text'].lower()=='start':
                 return self.startCommand(meetingDB, meetingInProgress,
-                                        standbot_settings.usernames, standbot_settings.shuffle,
+                                         standbot_settings.usernames, standbot_settings.shuffle,
                                          incomingSlackData['channel_id'])
 
-            if incomingSlackData['text']=='quit':
+            if incomingSlackData['text'].lower()=='quit':
                 return self.quitCommand(meetingDB, meetingInProgress)
 
-            if meetingInProgress and incomingSlackData['text']=='ready':
+            if meetingInProgress and incomingSlackData['text'].lower()=='ready':
                 return self.readyCommand(meetingDB, incomingSlackData)
 
-            if meetingInProgress and incomingSlackData['text']=='skip':
+            if meetingInProgress and incomingSlackData['text'].lower()=='skip':
                 return self.skipCommand(meetingDB)
 
-            if meetingInProgress and incomingSlackData['text']=='dismiss':
+            if meetingInProgress and incomingSlackData['text'].lower()=='dismiss':
                 return self.dismissCommand(meetingDB)
 
 
-            if meetingInProgress and incomingSlackData['text'][0:6]!='ignore' \
+            if meetingInProgress and incomingSlackData['text'][0:6].lower()!='ignore' \
                     and "@"+incomingSlackData['user_name']==meetingDB.currentMember:
                 return self.questionAnswer(meetingDB)
 
@@ -97,7 +97,7 @@ class SlackEndpoint (View):
         currentMemberIndex = meetingOrderAsList.index(meetingDB.currentMember)
 
         self.sendSlackMessage("Ok @"+incomingSlackData['user_name']+' wants to go. We\'ll come back to ' \
-                         + meetingDB.currentMember)
+                              + meetingDB.currentMember)
 
         meetingOrderAsList.remove('@'+incomingSlackData['user_name'])
         meetingOrderAsList.insert(currentMemberIndex, '@'+incomingSlackData['user_name'])
